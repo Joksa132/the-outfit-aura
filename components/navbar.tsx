@@ -1,10 +1,11 @@
-"use client";
-
 import { Heart, ShoppingCart } from "lucide-react";
 import Link from "next/link";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { auth, signOut } from "@/auth";
 
-export function Navbar() {
-  const user = null;
+export async function Navbar() {
+  const session = await auth();
 
   return (
     <header className="sticky top-0 z-10 w-full border-b">
@@ -15,7 +16,9 @@ export function Navbar() {
 
         <nav className="flex items-center gap-2">categories</nav>
 
-        <input type="text" placeholder="Search..." className="border" />
+        <div className="max-w-sm">
+          <Input placeholder="Search products..." />
+        </div>
 
         <div className="flex items-center gap-4">
           <Link href="/wishlist">
@@ -26,11 +29,28 @@ export function Navbar() {
             <ShoppingCart className="h-5 w-5" />
           </Link>
 
-          {user ? (
-            <span>Log out</span>
+          {session?.user ? (
+            <>
+              <span className="text-sm">
+                Hi, {session.user.name || session.user.email}
+              </span>
+              <form
+                action={async () => {
+                  "use server";
+
+                  await signOut({ redirectTo: "/" });
+                }}
+              >
+                <Button variant="outline" size="sm" type="submit">
+                  Log out
+                </Button>
+              </form>
+            </>
           ) : (
             <Link href="/login">
-              <span>Login</span>
+              <Button variant="outline" size="sm">
+                Login
+              </Button>
             </Link>
           )}
         </div>

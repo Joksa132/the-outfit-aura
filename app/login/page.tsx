@@ -6,10 +6,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Separator } from "@radix-ui/react-separator";
 import { Github, Mail } from "lucide-react";
+import { redirect } from "next/navigation";
+import { signIn, auth } from "@/auth";
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  const session = await auth();
+
+  if (session) redirect("/");
+
   return (
     <div className="min-h-screen flex items-center justify-center">
       <Card className="w-full max-w-md">
@@ -21,14 +26,31 @@ export default function LoginPage() {
         </CardHeader>
         <CardContent>
           <div className="flex flex-col gap-2">
-            <Button variant="outline">
-              <Mail className="h-4 w-4" />
-              Continue with Google
-            </Button>
-            <Button variant="outline">
-              <Github className="h-4 w-4" />
-              Continue with GitHub
-            </Button>
+            <form
+              action={async () => {
+                "use server";
+
+                await signIn("google", { redirectTo: "/" });
+              }}
+            >
+              <Button className="w-full" variant="outline" type="submit">
+                <Mail className="h-4 w-4" />
+                Continue with Google
+              </Button>
+            </form>
+
+            <form
+              action={async () => {
+                "use server";
+
+                await signIn("github", { redirectTo: "/" });
+              }}
+            >
+              <Button className="w-full" variant="outline" type="submit">
+                <Github className="h-4 w-4" />
+                Continue with GitHub
+              </Button>
+            </form>
           </div>
         </CardContent>
       </Card>
