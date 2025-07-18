@@ -11,7 +11,9 @@ export async function Navbar() {
     <header className="sticky top-0 z-10 w-full border-b">
       <div className="container flex items-center justify-between px-4 h-16">
         <Link href="/" className="flex items-center">
-          <span className="text-2xl font-bold">The Outfit Aura</span>
+          <span className="text-2xl font-bold font-heading">
+            The Outfit Aura
+          </span>
         </Link>
 
         <nav className="flex items-center gap-2">categories</nav>
