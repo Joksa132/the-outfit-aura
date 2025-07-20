@@ -1,11 +1,23 @@
-import { Heart, ShoppingCart } from "lucide-react";
+import { Heart, Search, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { auth, signOut } from "@/auth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
+import { createSupabaseClient } from "@/lib/supabase-client";
 
 export async function Navbar() {
   const session = await auth();
+  const supabaseClient = createSupabaseClient();
+
+  const { data: categories, error } = await supabaseClient
+    .from("categories")
+    .select();
 
   return (
     <header className="sticky top-0 z-10 w-full border-b">
@@ -16,10 +28,50 @@ export async function Navbar() {
           </span>
         </Link>
 
-        <nav className="flex items-center gap-2">categories</nav>
+        <nav className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="font-medium">
+                Categories
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              {categories?.map((category) => (
+                <DropdownMenuItem
+                  key={category.url}
+                  asChild
+                  className="cursor-pointer"
+                >
+                  <Link href={`/category/${category.url}`}>
+                    {category.name}
+                  </Link>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <Link href="/men" className="text-sm font-medium px-2">
+            Men
+          </Link>
+          <Link href="/women" className="text-sm font-medium px-2">
+            Women
+          </Link>
+          <Link href="/sale" className="text-sm font-medium px-2">
+            Sale
+          </Link>
+          <Link href="/new" className="text-sm font-medium px-2">
+            New
+          </Link>
+        </nav>
 
-        <div className="max-w-sm">
-          <Input placeholder="Search products..." />
+        <div className="max-w-sm flex items-center mx-6 flex-1">
+          <div className="relative flex-1">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search products..."
+              className="pl-8"
+            />
+          </div>
         </div>
 
         <div className="flex items-center gap-4">
