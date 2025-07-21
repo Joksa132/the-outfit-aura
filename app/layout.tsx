@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
+import { SessionProvider } from "@/components/session-provider";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const playfair = Playfair_Display({
@@ -24,8 +25,10 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${playfair.variable} antialiased font-sans`}
       >
-        <Navbar />
-        <main>{children}</main>
+        <SessionProvider>
+          <Navbar />
+          <main>{children}</main>
+        </SessionProvider>
       </body>
     </html>
   );
