@@ -1,23 +1,20 @@
 import { ProductCard } from "@/components/ProductCard";
 import { createSupabaseClient } from "@/lib/supabase-client";
 import { ProductVariantsDetails } from "@/lib/types";
+import { cache } from "react";
 
-export default async function CategoryPage({
-  params,
-}: {
-  params: Promise<{ category: string }>;
-}) {
+const getCategoryProducts = cache(async (categoryUrl: string) => {
   const supabaseClient = createSupabaseClient();
-  const { category } = await params;
 
   const { data: categoryData, error: categoryError } = await supabaseClient
     .from("categories")
     .select("id, name, url")
-    .eq("url", category)
+    .eq("url", categoryUrl)
     .single();
 
   if (categoryError || !categoryData) {
-    // handle no category found - custom ui
+    console.error(`Category not found for URL: ${categoryUrl}`, categoryError);
+    // custom ui
   }
 
   const { data: categoryProductVariants, error: variantsError } =
@@ -54,6 +51,18 @@ export default async function CategoryPage({
 
   const productVariants: ProductVariantsDetails[] = (categoryProductVariants ||
     []) as unknown as ProductVariantsDetails[];
+
+  return { categoryData, productVariants };
+});
+
+export default async function CategoryPage({
+  params,
+}: {
+  params: Promise<{ category: string }>;
+}) {
+  const { category } = await params;
+
+  const { categoryData, productVariants } = await getCategoryProducts(category);
 
   return (
     <div className="container mx-auto px-4 py-8">

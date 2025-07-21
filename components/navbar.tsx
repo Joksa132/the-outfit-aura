@@ -10,14 +10,23 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { createSupabaseClient } from "@/lib/supabase-client";
+import { cache } from "react";
 
-export async function Navbar() {
-  const session = await auth();
+const getCategories = cache(async () => {
   const supabaseClient = createSupabaseClient();
-
   const { data: categories, error } = await supabaseClient
     .from("categories")
     .select();
+
+  if (error) {
+    return [];
+  }
+  return categories;
+});
+
+export async function Navbar() {
+  const session = await auth();
+  const categories = await getCategories();
 
   return (
     <header className="sticky top-0 z-10 w-full border-b bg-white">
