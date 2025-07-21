@@ -20,7 +20,7 @@ export async function Navbar() {
     .select();
 
   return (
-    <header className="sticky top-0 z-10 w-full border-b">
+    <header className="sticky top-0 z-10 w-full border-b bg-white">
       <div className="container flex items-center justify-between px-4 h-16">
         <Link href="/" className="flex items-center">
           <span className="text-2xl font-bold font-heading">
