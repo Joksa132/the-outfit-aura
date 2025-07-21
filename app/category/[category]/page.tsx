@@ -1,6 +1,7 @@
 import { ProductCard } from "@/components/ProductCard";
 import { createSupabaseClient } from "@/lib/supabase-client";
 import { ProductVariantsDetails } from "@/lib/types";
+import { notFound } from "next/navigation";
 import { cache } from "react";
 
 const getCategoryProducts = cache(async (categoryUrl: string) => {
@@ -13,8 +14,7 @@ const getCategoryProducts = cache(async (categoryUrl: string) => {
     .single();
 
   if (categoryError || !categoryData) {
-    console.error(`Category not found for URL: ${categoryUrl}`, categoryError);
-    // custom ui
+    notFound();
   }
 
   const { data: categoryProductVariants, error: variantsError } =
@@ -48,6 +48,10 @@ const getCategoryProducts = cache(async (categoryUrl: string) => {
         `
       )
       .eq("products.category_id", categoryData?.id);
+
+  if (variantsError) {
+    return { categoryData, productVariants: [] };
+  }
 
   const productVariants: ProductVariantsDetails[] = (categoryProductVariants ||
     []) as unknown as ProductVariantsDetails[];
