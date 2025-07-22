@@ -11,6 +11,8 @@ import {
 import { createSupabaseClient } from "@/lib/supabase-client";
 import { cache } from "react";
 import { SearchBar } from "./search-bar";
+import { getCartItems } from "@/lib/cart-actions";
+import { Badge } from "./ui/badge";
 
 const getCategories = cache(async () => {
   const supabaseClient = createSupabaseClient();
@@ -27,6 +29,8 @@ const getCategories = cache(async () => {
 export async function Navbar() {
   const session = await auth();
   const categories = await getCategories();
+  const cartItems = await getCartItems();
+  const cartItemsCount = cartItems.length;
 
   return (
     <header className="sticky top-0 z-10 w-full border-b bg-white">
@@ -82,7 +86,14 @@ export async function Navbar() {
           </Link>
 
           <Link href="/cart">
-            <ShoppingCart className="h-5 w-5" />
+            <Button variant="ghost" size="icon" className="relative">
+              <ShoppingCart className="h-5 w-5" />
+              {cartItemsCount > 0 && (
+                <Badge className="absolute -top-2 -right-2 h-4 w-4 flex items-center justify-center p-0 text-xs">
+                  {cartItemsCount}
+                </Badge>
+              )}
+            </Button>
           </Link>
 
           {session?.user ? (
