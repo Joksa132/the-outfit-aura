@@ -3,6 +3,7 @@ import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { SessionProvider } from "@/components/session-provider";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const playfair = Playfair_Display({
@@ -28,6 +29,7 @@ export default function RootLayout({
         <SessionProvider>
           <Navbar />
           <main>{children}</main>
+          <Toaster />
         </SessionProvider>
       </body>
     </html>
