@@ -42,10 +42,10 @@ const getSearchResults = cache(async (query: string) => {
     return [];
   }
 
-  const productVariantsToDisplay: ProductVariantsDetails[] = (searchProducts ||
+  const products: ProductVariantsDetails[] = (searchProducts ||
     []) as unknown as ProductVariantsDetails[];
 
-  return productVariantsToDisplay;
+  return products;
 });
 
 export default async function SearchPage({
