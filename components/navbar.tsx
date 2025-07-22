@@ -1,7 +1,6 @@
-import { Heart, Search, ShoppingCart } from "lucide-react";
+import { Heart, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { Button } from "./ui/button";
-import { Input } from "./ui/input";
 import { auth, signOut } from "@/auth";
 import {
   DropdownMenu,
@@ -11,6 +10,7 @@ import {
 } from "./ui/dropdown-menu";
 import { createSupabaseClient } from "@/lib/supabase-client";
 import { cache } from "react";
+import { SearchBar } from "./search-bar";
 
 const getCategories = cache(async () => {
   const supabaseClient = createSupabaseClient();
@@ -73,14 +73,7 @@ export async function Navbar() {
         </nav>
 
         <div className="max-w-sm flex items-center mx-6 flex-1">
-          <div className="relative flex-1">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search products..."
-              className="pl-8"
-            />
-          </div>
+          <SearchBar />
         </div>
 
         <div className="flex items-center gap-4">
