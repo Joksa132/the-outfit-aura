@@ -57,11 +57,6 @@ export default async function SearchPage({
 
   const products = await getSearchResults(query);
 
-<<<<<<< HEAD
-=======
-  console.log("Search Results (from page.tsx):", products);
-
->>>>>>> 24737dcf1194acc216a7c5495bc3082af30af1e1
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex flex-col justify-between items-start gap-2 mb-8">
