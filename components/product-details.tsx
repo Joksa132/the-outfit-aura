@@ -2,7 +2,7 @@
 
 import { ProductVariantsDetails } from "@/lib/types";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Button } from "./ui/button";
 import { Heart, ShoppingCart, Star } from "lucide-react";
 import { Separator } from "./ui/separator";
@@ -16,6 +16,8 @@ import {
   SelectValue,
 } from "./ui/select";
 import { useSession } from "next-auth/react";
+import { addOrUpdateCartItem } from "@/lib/cart-actions";
+import { toast } from "sonner";
 
 export function ProductDetails({
   product,
@@ -27,6 +29,37 @@ export function ProductDetails({
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [quantity, setQuantity] = useState<number>(1);
   const { data: session, status } = useSession();
+  const [isPending, startTransition] = useTransition();
+
+  const handleAddToCart = async () => {
+    startTransition(async () => {
+      if (!selectedSize || selectedSize === "") {
+        toast.warning("Failed to add to cart.", {
+          description: "You must select product size first.",
+        });
+        return;
+      }
+
+      const result = await addOrUpdateCartItem(
+        product.id,
+        quantity,
+        selectedSize
+      );
+
+      if (result.success) {
+        toast.success(
+          `${quantity} x ${mainProduct.name} (${product.color}, ${selectedSize}) added to cart!`,
+          {
+            description: "Item successfully added to your shopping cart.",
+          }
+        );
+      } else {
+        toast.error("Failed to add to cart.", {
+          description: "There was an issue adding the item. Please try again.",
+        });
+      }
+    });
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -124,9 +157,20 @@ export function ProductDetails({
           </div>
 
           <div className="space-y-4">
-            <Button className="w-full" size="lg">
-              <ShoppingCart className="w-4 h-4 mr-2" />
-              {session?.user ? "Add to Cart" : "Log in to Add to Cart"}
+            <Button
+              className="w-full"
+              size="lg"
+              onClick={handleAddToCart}
+              disabled={isPending}
+            >
+              {isPending ? (
+                "Adding..."
+              ) : (
+                <>
+                  <ShoppingCart className="w-4 h-4 mr-2" />
+                  {session?.user ? "Add to Cart" : "Log in to Add to Cart"}
+                </>
+              )}
             </Button>
             <Button
               variant="outline"
