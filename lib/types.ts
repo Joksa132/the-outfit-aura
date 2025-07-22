@@ -39,3 +39,11 @@ export type ProductVariants = {
 export interface ProductVariantsDetails extends ProductVariants {
   products: Product;
 }
+
+export type CartItem = {
+  id: string;
+  quantity: number;
+  selected_size: string;
+  product_variant_id: string;
+  product_variants: ProductVariantsDetails;
+};
