@@ -2,7 +2,7 @@
 
 import { ProductVariantsDetails } from "@/lib/types";
 import Image from "next/image";
-import { useState, useTransition } from "react";
+import { useCallback, useEffect, useState, useTransition } from "react";
 import { Button } from "./ui/button";
 import { Heart, ShoppingCart, Star } from "lucide-react";
 import { Separator } from "./ui/separator";
@@ -18,6 +18,11 @@ import {
 import { useSession } from "next-auth/react";
 import { addOrUpdateCartItem } from "@/lib/cart-actions";
 import { toast } from "sonner";
+import {
+  addWishlistItem,
+  getWishlistItem,
+  removeWishlistItem,
+} from "@/lib/wishlist-actions";
 
 export function ProductDetails({
   product,
@@ -30,6 +35,8 @@ export function ProductDetails({
   const [quantity, setQuantity] = useState<number>(1);
   const { data: session, status } = useSession();
   const [isPending, startTransition] = useTransition();
+  const [isWishlisted, setIsWishlisted] = useState<boolean>(false);
+  const [wishlistItemId, setWishlistItemId] = useState<string | null>(null);
 
   const handleAddToCart = async () => {
     startTransition(async () => {
@@ -57,6 +64,48 @@ export function ProductDetails({
         toast.error("Failed to add to cart.", {
           description: "There was an issue adding the item. Please try again.",
         });
+      }
+    });
+  };
+
+  const checkWishlistStatus = useCallback(async () => {
+    if (session?.user?.id && product?.id) {
+      const wishlistItem = await getWishlistItem(product.id);
+
+      setIsWishlisted(!!wishlistItem);
+      setWishlistItemId(wishlistItem ? wishlistItem.id : null);
+    } else {
+      setIsWishlisted(false);
+      setWishlistItemId(null);
+    }
+  }, [session, product]);
+
+  useEffect(() => {
+    if (status !== "loading") {
+      checkWishlistStatus();
+    }
+  }, [status, checkWishlistStatus]);
+
+  const handleWishlist = async () => {
+    startTransition(async () => {
+      let result;
+      if (isWishlisted && wishlistItemId) {
+        result = await removeWishlistItem(wishlistItemId);
+        if (result.success) {
+          setIsWishlisted(false);
+          setWishlistItemId(null);
+          toast.success("Removed from wishlist.");
+        } else {
+          toast.error("Failed to remove from wishlist.");
+        }
+      } else {
+        result = await addWishlistItem(product.id);
+        if (result.success) {
+          setIsWishlisted(true);
+          toast.success("Added to wishlist!");
+        } else {
+          toast.error("Failed to add to wishlist.");
+        }
       }
     });
   };
@@ -163,22 +212,18 @@ export function ProductDetails({
               onClick={handleAddToCart}
               disabled={isPending}
             >
-              {isPending ? (
-                "Adding..."
-              ) : (
-                <>
-                  <ShoppingCart className="w-4 h-4 mr-2" />
-                  {session?.user ? "Add to Cart" : "Log in to Add to Cart"}
-                </>
-              )}
+              <ShoppingCart className="w-4 h-4 mr-2" />
+              {session?.user ? "Add to Cart" : "Log in to Add to Cart"}
             </Button>
             <Button
               variant="outline"
               className="w-full bg-transparent"
               size="lg"
+              onClick={handleWishlist}
+              disabled={isPending}
             >
               <Heart className="w-4 h-4 mr-2" />
-              Add to Wishlist
+              {isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
             </Button>
           </div>
         </div>
