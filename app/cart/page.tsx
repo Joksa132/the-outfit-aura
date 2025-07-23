@@ -36,7 +36,7 @@ export default async function CartPage() {
         <ShoppingBag className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
         <h1 className="text-2xl font-bold mb-4">Your Cart is Empty</h1>
         <p className="text-muted-foreground mb-6">
-          Looks like you haven't added any items to your cart yet.
+          Looks like you haven&apos;t added any items to your cart yet.
         </p>
         <Link href="/">
           <Button>Continue Shopping</Button>

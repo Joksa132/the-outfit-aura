@@ -48,12 +48,17 @@ const getSearchResults = cache(async (query: string) => {
   return products;
 });
 
-export default async function SearchPage({
-  searchParams,
-}: {
-  searchParams: { query: string };
-}) {
-  const { query } = searchParams || "";
+export type SearchPageSearchParams = Promise<{
+  query?: string;
+}>;
+
+type SearchPageProps = {
+  searchParams: SearchPageSearchParams;
+};
+
+export default async function SearchPage({ searchParams }: SearchPageProps) {
+  const resolvedSearchParams = await searchParams;
+  const query = resolvedSearchParams?.query || "";
 
   const products = await getSearchResults(query);
 

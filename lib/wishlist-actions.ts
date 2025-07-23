@@ -115,7 +115,7 @@ export async function addWishlistItem(productVariantId: string) {
 
   const userId = session?.user?.id;
   try {
-    const { data: existingItem, error: selectError } = await supabase
+    const { error: selectError } = await supabase
       .from("wishlist")
       .select()
       .eq("user_id", userId)

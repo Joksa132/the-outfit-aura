@@ -8,10 +8,6 @@ import { cache } from "react";
 const getProductDetails = cache(async (urlSlug: string, color?: string) => {
   const supabaseClient = createSupabaseClient();
 
-  console.log(
-    `Fetching product details for: urlSlug='${urlSlug}', color='${color}'`
-  );
-
   let query = supabaseClient
     .from("product_variants")
     .select(
@@ -59,21 +55,44 @@ const getProductDetails = cache(async (urlSlug: string, color?: string) => {
   return data;
 });
 
+export async function generateStaticParams() {
+  const supabaseClient = createSupabaseClient();
+  const { data: products, error } = await supabaseClient
+    .from("products")
+    .select("url_slug");
+
+  if (error) {
+    console.log(error.message);
+    return [];
+  }
+
+  return products.map((product) => ({
+    url_slug: product.url_slug,
+  }));
+}
+
+export type ProductPageParams = Promise<{
+  url_slug: string;
+}>;
+
+export type ProductPageSearchParams = Promise<{
+  color?: string;
+}>;
+
 type ProductPageProps = {
-  params: {
-    url_slug: string;
-  };
-  searchParams?: {
-    color?: string;
-  };
+  params: ProductPageParams;
+  searchParams?: ProductPageSearchParams;
 };
 
 export default async function ProductPage({
   params,
   searchParams,
 }: ProductPageProps) {
-  const { url_slug } = params;
-  const { color } = searchParams || {};
+  const resolvedParams = await params;
+  const { url_slug } = resolvedParams;
+
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const { color } = resolvedSearchParams || {};
 
   const productVariant = await getProductDetails(url_slug, color);
 

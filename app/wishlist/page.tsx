@@ -1,4 +1,3 @@
-import { auth } from "@/auth";
 import { Button } from "@/components/ui/button";
 import { WishlistProductCard } from "@/components/wishlist-product-card";
 import { getWishlistItems } from "@/lib/wishlist-actions";
@@ -7,7 +6,6 @@ import Link from "next/link";
 
 export default async function WishlistPage() {
   const wishlistItems = await getWishlistItems();
-  const session = auth();
 
   if (wishlistItems.length === 0) {
     return (

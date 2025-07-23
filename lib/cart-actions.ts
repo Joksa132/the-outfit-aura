@@ -138,7 +138,7 @@ export async function updateCartItemQuantity(
   const userId = session?.user?.id;
 
   try {
-    const { data, error } = await supabase
+    await supabase
       .from("cart")
       .update({ quantity: newQuantity, updated_at: new Date().toISOString() })
       .eq("id", cartItemId)
