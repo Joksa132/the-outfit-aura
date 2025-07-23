@@ -47,3 +47,9 @@ export type CartItem = {
   product_variant_id: string;
   product_variants: ProductVariantsDetails;
 };
+
+export type WishlistItem = {
+  id: string;
+  product_variant_id: string;
+  product_variants: ProductVariantsDetails;
+};
