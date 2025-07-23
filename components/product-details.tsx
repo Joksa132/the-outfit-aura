@@ -43,6 +43,12 @@ export function ProductDetails({
   const wishlistItemId = getWishlistItemId(product.id);
 
   const handleAddToCart = async () => {
+    if (!session) {
+      toast.warning("Login required", {
+        description: "Please log in to add items to your cart.",
+      });
+      return;
+    }
     startTransition(async () => {
       if (!selectedSize || selectedSize === "") {
         toast.warning("Failed to add to cart.", {

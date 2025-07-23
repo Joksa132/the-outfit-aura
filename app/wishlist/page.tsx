@@ -1,3 +1,4 @@
+import { auth } from "@/auth";
 import { Button } from "@/components/ui/button";
 import { WishlistProductCard } from "@/components/wishlist-product-card";
 import { getWishlistItems } from "@/lib/wishlist-actions";
@@ -6,6 +7,22 @@ import Link from "next/link";
 
 export default async function WishlistPage() {
   const wishlistItems = await getWishlistItems();
+  const session = await auth();
+
+  if (!session) {
+    return (
+      <div className="container mx-auto px-4 py-16 text-center">
+        <Heart className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
+        <h1 className="text-2xl font-bold mb-4">Please Log In</h1>
+        <p className="text-muted-foreground mb-6">
+          You need to log in to wishlist items.
+        </p>
+        <Link href="/login">
+          <Button>Log In</Button>
+        </Link>
+      </div>
+    );
+  }
 
   if (wishlistItems.length === 0) {
     return (
