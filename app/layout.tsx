@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { SessionProvider } from "@/components/session-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { WishlistProvider } from "@/components/wishlist-context";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const playfair = Playfair_Display({
@@ -27,9 +28,11 @@ export default function RootLayout({
         className={`${inter.variable} ${playfair.variable} antialiased font-sans`}
       >
         <SessionProvider>
-          <Navbar />
-          <main>{children}</main>
-          <Toaster />
+          <WishlistProvider>
+            <Navbar />
+            <main>{children}</main>
+            <Toaster position="top-center" richColors />
+          </WishlistProvider>
         </SessionProvider>
       </body>
     </html>

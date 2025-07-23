@@ -6,32 +6,18 @@ import Image from "next/image";
 import { Button } from "./ui/button";
 import { Heart } from "lucide-react";
 import { WishlistItem } from "@/lib/types";
-import { useTransition } from "react";
-import { removeWishlistItem } from "@/lib/wishlist-actions";
-import { toast } from "sonner";
+import { useWishlist } from "./wishlist-context";
 
 export function WishlistProductCard({ product }: { product: WishlistItem }) {
   const defaultImageUrl = "/placeholder-image.svg";
   const imageUrl = product.product_variants.image_urls?.[0] || defaultImageUrl;
   const mainProduct = product.product_variants.products;
-  const [isPending, startTransition] = useTransition();
+  const { removeItem, isAddingOrRemoving } = useWishlist();
 
   const handleRemoveItem = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-
-    startTransition(async () => {
-      const result = await removeWishlistItem(product.id);
-      if (result.success) {
-        toast.success(
-          `${mainProduct.name} (${product.product_variants.color}) removed from cart.`
-        );
-      } else {
-        toast.error("Failed to remove item", {
-          description: "There was an error removing the item.",
-        });
-      }
-    });
+    await removeItem(product.id);
   };
 
   return (
@@ -55,7 +41,7 @@ export function WishlistProductCard({ product }: { product: WishlistItem }) {
               size="icon"
               className="absolute top-3 right-3 h-8 w-8 rounded-full bg-white/80 hover:bg-white text-red-500 hover:text-red-600"
               onClick={handleRemoveItem}
-              disabled={isPending}
+              disabled={isAddingOrRemoving}
             >
               <Heart className="h-4 w-4 fill-red-500" />
             </Button>

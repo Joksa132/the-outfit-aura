@@ -2,7 +2,7 @@
 
 import { ProductVariantsDetails } from "@/lib/types";
 import Image from "next/image";
-import { useCallback, useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { Button } from "./ui/button";
 import { Heart, ShoppingCart, Star } from "lucide-react";
 import { Separator } from "./ui/separator";
@@ -18,11 +18,7 @@ import {
 import { useSession } from "next-auth/react";
 import { addOrUpdateCartItem } from "@/lib/cart-actions";
 import { toast } from "sonner";
-import {
-  addWishlistItem,
-  getWishlistItem,
-  removeWishlistItem,
-} from "@/lib/wishlist-actions";
+import { useWishlist } from "./wishlist-context";
 
 export function ProductDetails({
   product,
@@ -33,10 +29,18 @@ export function ProductDetails({
   const [selectedImage, setSelectedImage] = useState<number>(0);
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [quantity, setQuantity] = useState<number>(1);
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const [isPending, startTransition] = useTransition();
-  const [isWishlisted, setIsWishlisted] = useState<boolean>(false);
-  const [wishlistItemId, setWishlistItemId] = useState<string | null>(null);
+  const {
+    isProductWishlisted,
+    getWishlistItemId,
+    addItem,
+    removeItem,
+    isAddingOrRemoving,
+  } = useWishlist();
+
+  const isWishlisted = isProductWishlisted(product.id);
+  const wishlistItemId = getWishlistItemId(product.id);
 
   const handleAddToCart = async () => {
     startTransition(async () => {
@@ -68,46 +72,12 @@ export function ProductDetails({
     });
   };
 
-  const checkWishlistStatus = useCallback(async () => {
-    if (session?.user?.id && product?.id) {
-      const wishlistItem = await getWishlistItem(product.id);
-
-      setIsWishlisted(!!wishlistItem);
-      setWishlistItemId(wishlistItem ? wishlistItem.id : null);
-    } else {
-      setIsWishlisted(false);
-      setWishlistItemId(null);
-    }
-  }, [session, product]);
-
-  useEffect(() => {
-    if (status !== "loading") {
-      checkWishlistStatus();
-    }
-  }, [status, checkWishlistStatus]);
-
   const handleWishlist = async () => {
-    startTransition(async () => {
-      let result;
-      if (isWishlisted && wishlistItemId) {
-        result = await removeWishlistItem(wishlistItemId);
-        if (result.success) {
-          setIsWishlisted(false);
-          setWishlistItemId(null);
-          toast.success("Removed from wishlist.");
-        } else {
-          toast.error("Failed to remove from wishlist.");
-        }
-      } else {
-        result = await addWishlistItem(product.id);
-        if (result.success) {
-          setIsWishlisted(true);
-          toast.success("Added to wishlist!");
-        } else {
-          toast.error("Failed to add to wishlist.");
-        }
-      }
-    });
+    if (isWishlisted && wishlistItemId) {
+      await removeItem(wishlistItemId);
+    } else {
+      await addItem(product.id);
+    }
   };
 
   return (
@@ -220,7 +190,7 @@ export function ProductDetails({
               className="w-full bg-transparent"
               size="lg"
               onClick={handleWishlist}
-              disabled={isPending}
+              disabled={isPending || isAddingOrRemoving}
             >
               <Heart className="w-4 h-4 mr-2" />
               {isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
