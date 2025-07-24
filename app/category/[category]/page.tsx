@@ -1,4 +1,4 @@
-import { ProductCard } from "@/components/product-card";
+import { ProductDisplayFilters } from "@/components/product-display-filters";
 import { createSupabaseClient } from "@/lib/supabase-client";
 import { ProductVariantsDetails } from "@/lib/types";
 import { notFound } from "next/navigation";
@@ -50,13 +50,57 @@ const getCategoryProducts = cache(async (categoryUrl: string) => {
       .eq("products.category_id", categoryData?.id);
 
   if (variantsError) {
-    return { categoryData, productVariants: [] };
+    return {
+      categoryData,
+      productVariants: [],
+      availableColors: [],
+      availableSizes: [],
+      initialMinPrice: 0,
+      initialMaxPrice: 200,
+    };
   }
 
   const productVariants: ProductVariantsDetails[] = (categoryProductVariants ||
     []) as unknown as ProductVariantsDetails[];
 
-  return { categoryData, productVariants };
+  const availableColors = productVariants.reduce(
+    (uniqueColors: string[], p) => {
+      if (p.color && !uniqueColors.includes(p.color)) {
+        uniqueColors.push(p.color);
+      }
+      return uniqueColors;
+    },
+    []
+  );
+
+  const availableSizes = productVariants.reduce((uniqueSizes: string[], p) => {
+    if (p.products.available_sizes) {
+      for (const size of p.products.available_sizes) {
+        if (size && !uniqueSizes.includes(size)) {
+          uniqueSizes.push(size);
+        }
+      }
+    }
+    return uniqueSizes;
+  }, []);
+
+  const allPrices = productVariants
+    .map((p) => p.products.discounted_price ?? p.products.price)
+    .filter((price) => typeof price === "number") as number[];
+
+  const initialMinPrice =
+    allPrices.length > 0 ? Math.floor(Math.min(...allPrices)) : 0;
+  const initialMaxPrice =
+    allPrices.length > 0 ? Math.ceil(Math.max(...allPrices)) : 200;
+
+  return {
+    categoryData,
+    productVariants,
+    availableColors,
+    availableSizes,
+    initialMinPrice,
+    initialMaxPrice,
+  };
 });
 
 export default async function CategoryPage({
@@ -66,7 +110,14 @@ export default async function CategoryPage({
 }) {
   const { category } = await params;
 
-  const { categoryData, productVariants } = await getCategoryProducts(category);
+  const {
+    categoryData,
+    productVariants,
+    availableColors,
+    availableSizes,
+    initialMinPrice,
+    initialMaxPrice,
+  } = await getCategoryProducts(category);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -77,11 +128,13 @@ export default async function CategoryPage({
         </p>
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
-        {productVariants.map((product) => (
-          <ProductCard product={product} key={product.id} />
-        ))}
-      </div>
+      <ProductDisplayFilters
+        initialProducts={productVariants}
+        availableColors={availableColors}
+        availableSizes={availableSizes}
+        initialMinPrice={initialMinPrice}
+        initialMaxPrice={initialMaxPrice}
+      />
     </div>
   );
 }

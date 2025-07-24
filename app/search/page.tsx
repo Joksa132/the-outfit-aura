@@ -1,4 +1,4 @@
-import { ProductCard } from "@/components/product-card";
+import { ProductDisplayFilters } from "@/components/product-display-filters";
 import { createSupabaseClient } from "@/lib/supabase-client";
 import { ProductVariantsDetails } from "@/lib/types";
 import { Search } from "lucide-react";
@@ -39,13 +39,55 @@ const getSearchResults = cache(async (query: string) => {
     .ilike("products.name", `%${query}%`);
 
   if (error) {
-    return [];
+    return {
+      productVariants: [],
+      availableColors: [],
+      availableSizes: [],
+      initialMinPrice: 0,
+      initialMaxPrice: 200,
+    };
   }
 
-  const products: ProductVariantsDetails[] = (searchProducts ||
+  const productVariants: ProductVariantsDetails[] = (searchProducts ||
     []) as unknown as ProductVariantsDetails[];
 
-  return products;
+  const availableColors = productVariants.reduce(
+    (uniqueColors: string[], p) => {
+      if (p.color && !uniqueColors.includes(p.color)) {
+        uniqueColors.push(p.color);
+      }
+      return uniqueColors;
+    },
+    []
+  );
+
+  const availableSizes = productVariants.reduce((uniqueSizes: string[], p) => {
+    if (p.products.available_sizes) {
+      for (const size of p.products.available_sizes) {
+        if (size && !uniqueSizes.includes(size)) {
+          uniqueSizes.push(size);
+        }
+      }
+    }
+    return uniqueSizes;
+  }, []);
+
+  const allPrices = productVariants
+    .map((p) => p.products.discounted_price ?? p.products.price)
+    .filter((price) => typeof price === "number") as number[];
+
+  const initialMinPrice =
+    allPrices.length > 0 ? Math.floor(Math.min(...allPrices)) : 0;
+  const initialMaxPrice =
+    allPrices.length > 0 ? Math.ceil(Math.max(...allPrices)) : 200; // Default max price
+
+  return {
+    productVariants,
+    availableColors,
+    availableSizes,
+    initialMinPrice,
+    initialMaxPrice,
+  };
 });
 
 export type SearchPageSearchParams = Promise<{
@@ -60,7 +102,13 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
   const resolvedSearchParams = await searchParams;
   const query = resolvedSearchParams?.query || "";
 
-  const products = await getSearchResults(query);
+  const {
+    productVariants,
+    availableColors,
+    availableSizes,
+    initialMinPrice,
+    initialMaxPrice,
+  } = await getSearchResults(query);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -72,15 +120,17 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           </h1>
         </div>
         <p className="text-muted-foreground">
-          {products.length} products found
+          {productVariants.length} products found
         </p>
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
-        {products.map((product) => (
-          <ProductCard product={product} key={product.id} />
-        ))}
-      </div>
+      <ProductDisplayFilters
+        initialProducts={productVariants}
+        availableColors={availableColors}
+        availableSizes={availableSizes}
+        initialMinPrice={initialMinPrice}
+        initialMaxPrice={initialMaxPrice}
+      />
     </div>
   );
 }
