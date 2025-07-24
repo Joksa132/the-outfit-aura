@@ -6,7 +6,7 @@ import Image from "next/image";
 import { Button } from "./ui/button";
 import { Heart } from "lucide-react";
 import { WishlistItem } from "@/lib/types";
-import { useWishlist } from "./wishlist-context";
+import { useWishlist } from "./providers/wishlist-context";
 
 export function WishlistProductCard({ product }: { product: WishlistItem }) {
   const defaultImageUrl = "/placeholder-image.svg";

@@ -6,46 +6,21 @@ import { Button } from "./ui/button";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { Input } from "./ui/input";
 import { CartItem } from "@/lib/types";
-import { removeCartItem, updateCartItemQuantity } from "@/lib/cart-actions";
-import { useTransition } from "react";
-import { toast } from "sonner";
+import { useCart } from "./providers/cart-context";
 
 export function CartProductCard({ product }: { product: CartItem }) {
   const defaultImageUrl = "/placeholder-image.svg";
   const imageUrl = product.product_variants.image_urls?.[0] || defaultImageUrl;
   const mainProduct = product.product_variants.products;
 
-  const [isPending, startTransition] = useTransition();
+  const { removeItem, updateItemQuantity, isUpdatingCart } = useCart();
 
   const handleUpdateQuantity = async (newQuantity: number) => {
-    startTransition(async () => {
-      const result = await updateCartItemQuantity(product.id, newQuantity);
-
-      if (result.success) {
-        toast.success("Cart updated", {
-          description: `${mainProduct.name} quantity changed to ${newQuantity}.`,
-        });
-      } else {
-        toast.error("Failed to remove item", {
-          description: "There was an error updating the item.",
-        });
-      }
-    });
+    await updateItemQuantity(product.id, newQuantity);
   };
 
   const handleRemoveItem = async () => {
-    startTransition(async () => {
-      const result = await removeCartItem(product.id);
-      if (result.success) {
-        toast.success(
-          `${mainProduct.name} (${product.product_variants.color}, ${product.selected_size}) removed from cart.`
-        );
-      } else {
-        toast.error("Failed to remove item", {
-          description: "There was an error removing the item.",
-        });
-      }
-    });
+    await removeItem(product.id);
   };
 
   return (
@@ -74,7 +49,7 @@ export function CartProductCard({ product }: { product: CartItem }) {
               variant="ghost"
               size="icon"
               onClick={handleRemoveItem}
-              disabled={isPending}
+              disabled={isUpdatingCart}
             >
               <Trash2 className="w-4 h-4" />
             </Button>
@@ -83,7 +58,7 @@ export function CartProductCard({ product }: { product: CartItem }) {
                 variant="outline"
                 size="icon"
                 onClick={() => handleUpdateQuantity(product.quantity - 1)}
-                disabled={isPending}
+                disabled={isUpdatingCart}
               >
                 <Minus className="w-4 h-4" />
               </Button>
@@ -105,7 +80,7 @@ export function CartProductCard({ product }: { product: CartItem }) {
                 variant="outline"
                 size="icon"
                 onClick={() => handleUpdateQuantity(product.quantity + 1)}
-                disabled={isPending}
+                disabled={isUpdatingCart}
               >
                 <Plus className="w-4 h-4" />
               </Button>
