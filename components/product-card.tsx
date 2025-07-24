@@ -7,7 +7,7 @@ import Image from "next/image";
 import { Button } from "./ui/button";
 import { Heart } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { useWishlist } from "./wishlist-context";
+import { useWishlist } from "./providers/wishlist-context";
 
 export function ProductCard({ product }: { product: ProductVariantsDetails }) {
   const mainProduct = product.products;
