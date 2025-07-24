@@ -32,6 +32,7 @@ type CartContextType = {
     cartItemId: string,
     newQuantity: number
   ) => Promise<void>;
+  totalPrice: number;
 };
 
 const CartContext = createContext<CartContextType>({} as CartContextType);
@@ -99,7 +100,6 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const removeItem = useCallback(
     async (cartItemId: string) => {
-      // Optimistic update
       const originalItems = cartItems;
       setCartItems((prev) => prev.filter((item) => item.id !== cartItemId));
 
@@ -136,6 +136,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     []
   );
 
+  const totalPrice = cartItems.reduce(
+    (sum, item) => sum + item.product_variants.products.price * item.quantity,
+    0
+  );
+
   const value = {
     cartItems,
     isLoading,
@@ -143,6 +148,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     addItem,
     removeItem,
     updateItemQuantity,
+    totalPrice,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

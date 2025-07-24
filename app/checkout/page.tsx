@@ -12,7 +12,7 @@ import Link from "next/link";
 import { useState } from "react";
 
 export default function CheckoutPage() {
-  const { cartItems } = useCart();
+  const { cartItems, totalPrice } = useCart();
   const { data: session } = useSession();
 
   const [orderInfo, setOrderInfo] = useState({
@@ -25,11 +25,6 @@ export default function CheckoutPage() {
     zipCode: "",
   });
   const [isPlacingOrder, setIsPlacingOrder] = useState<boolean>(false);
-
-  const total = cartItems.reduce(
-    (sum, item) => sum + item.product_variants.products.price * item.quantity,
-    0
-  );
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -254,7 +249,7 @@ export default function CheckoutPage() {
 
                 <div className="flex justify-between font-bold text-lg">
                   <span>Total</span>
-                  <span>${total.toFixed(2)}</span>
+                  <span>${totalPrice.toFixed(2)}</span>
                 </div>
 
                 <Button
