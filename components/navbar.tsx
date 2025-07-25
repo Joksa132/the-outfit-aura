@@ -1,4 +1,4 @@
-import { Heart, ShoppingCart } from "lucide-react";
+import { Heart, Menu, ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { Button } from "./ui/button";
 import { auth, signOut } from "@/auth";
@@ -14,6 +14,13 @@ import { SearchBar } from "./search-bar";
 import { getCartItems } from "@/lib/cart-actions";
 import { Badge } from "./ui/badge";
 import { getWishlistItems } from "@/lib/wishlist-actions";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetTitle,
+  SheetTrigger,
+} from "./ui/sheet";
 
 const getCategories = cache(async () => {
   const supabaseClient = createSupabaseClient();
@@ -39,12 +46,12 @@ export async function Navbar() {
     <header className="sticky top-0 z-10 w-full border-b bg-white">
       <div className="container flex items-center justify-between px-4 h-16">
         <Link href="/" className="flex items-center">
-          <span className="text-2xl font-bold font-heading">
+          <span className="text-sm md:text-lg lg:text-2xl font-bold font-heading">
             The Outfit Aura
           </span>
         </Link>
 
-        <nav className="flex items-center gap-2">
+        <nav className="hidden md:flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="font-medium">
@@ -65,21 +72,9 @@ export async function Navbar() {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-          <Link href="/men" className="text-sm font-medium px-2">
-            Men
-          </Link>
-          <Link href="/women" className="text-sm font-medium px-2">
-            Women
-          </Link>
-          <Link href="/sale" className="text-sm font-medium px-2">
-            Sale
-          </Link>
-          <Link href="/new" className="text-sm font-medium px-2">
-            New
-          </Link>
         </nav>
 
-        <div className="max-w-sm flex items-center mx-6 flex-1">
+        <div className="max-w-sm hidden md:flex items-center mx-6 flex-1">
           <SearchBar />
         </div>
 
@@ -131,6 +126,36 @@ export async function Navbar() {
             </Link>
           )}
         </div>
+
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="ghost" size="icon" className="md:hidden">
+              <Menu className="h-5 w-5" />
+            </Button>
+          </SheetTrigger>
+
+          <SheetContent side="right">
+            <div className="flex flex-col gap-2 mt-12">
+              <SheetTitle className="sr-only">Menu</SheetTitle>
+              <SheetDescription className="sr-only">
+                Menu to open category pages or search for products
+              </SheetDescription>
+              <SearchBar />
+              <div className="space-y-2 p-4">
+                <h3 className="text-xl font-semibold">Categories</h3>
+                {categories.map((category) => (
+                  <Link
+                    key={category.url}
+                    href={`/category/${category.url}`}
+                    className="block py-1 text-sm font-semibold hover:text-primary"
+                  >
+                    {category.name}
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
       </div>
     </header>
   );

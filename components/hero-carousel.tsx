@@ -73,14 +73,16 @@ export function HeroCarousel() {
             />
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center text-white space-y-6 px-4 max-w-4xl">
-                <p className="text-xl font-medium uppercase">
+                <p className="text-lg md:text-xl font-medium uppercase">
                   {slide.subtitle}
                 </p>
-                <h1 className="text-6xl font-bold font-heading">
+                <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold font-heading">
                   {slide.title}
                 </h1>
-                <p className="text-xl max-w-2xl mx-auto">{slide.description}</p>
-                <div className="flex gap-4 justify-center">
+                <p className="text-lg md:text-xl max-w-2xl mx-auto">
+                  {slide.description}
+                </p>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Button
                     size="lg"
                     className="text-lg px-8 py-3 bg-white text-black hover:bg-gray-100"

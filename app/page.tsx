@@ -57,14 +57,14 @@ export default async function Home() {
 
       <section className="py-20 px-4 max-w-7xl mx-auto">
         <div className="text-center mb-16">
-          <h2 className="text-5xl font-bold font-heading mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold font-heading mb-4">
             Featured Collection
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
             Discover our handpicked selection
           </p>
         </div>
-        <div className="grid grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}

@@ -4,6 +4,15 @@ import { ProductVariantsDetails } from "@/lib/types";
 import { useCallback, useMemo, useState } from "react";
 import { CategoryFilters } from "./category-filters";
 import { ProductCard } from "./product-card";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetTitle,
+  SheetTrigger,
+} from "./ui/sheet";
+import { Button } from "./ui/button";
+import { SlidersHorizontal } from "lucide-react";
 
 type ProductDisplayFiltersProps = {
   initialProducts: ProductVariantsDetails[];
@@ -89,7 +98,7 @@ export function ProductDisplayFilters({
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-      <div className="md:col-span-1">
+      <div className="hidden md:block md:col-span-1">
         <CategoryFilters
           availableColors={availableColors}
           availableSizes={availableSizes}
@@ -99,13 +108,39 @@ export function ProductDisplayFilters({
         />
       </div>
 
-      <div className="col-span-3">
+      <div className="md:hidden flex justify-end mb-4">
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="outline" size="sm">
+              <SlidersHorizontal className="h-4 w-4 mr-2" />
+              Filters
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="right">
+            <SheetTitle className="text-2xl font-bold mb-6">Filters</SheetTitle>
+            <SheetDescription className="sr-only">
+              Apply filters to refine the product list.
+            </SheetDescription>
+            <div className="flex flex-col gap-4">
+              <CategoryFilters
+                availableColors={availableColors}
+                availableSizes={availableSizes}
+                onFilterChange={handleFilterChange}
+                initialMinPrice={initialMinPrice}
+                initialMaxPrice={initialMaxPrice}
+              />
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
+
+      <div className="col-span-1 md:col-span-3">
         {filteredAndSortedProducts.length === 0 ? (
           <div className="text-center py-10 text-muted-foreground">
             No products found matching your selected filters.
           </div>
         ) : (
-          <div className="grid grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {filteredAndSortedProducts.map((product) => (
               <ProductCard product={product} key={product.id} />
             ))}
