@@ -88,6 +88,10 @@ export function ProductDetails({
       if (recommended && recommended.length > 0) {
         setOutfitRecommendations(recommended);
         toast.success("Outfit ideas generated!");
+        window.scrollTo({
+          top: document.body.scrollHeight,
+          behavior: "smooth",
+        });
       } else {
         toast.info("Could not generate outfit ideas for this product.", {
           description: "Try again later or with a different product.",
