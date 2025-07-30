@@ -95,9 +95,18 @@ export function ProductDetails({
       }
     } catch (error) {
       console.log(error);
-      toast.error("Failed to generate outfit ideas.", {
-        description: "An error occurred while contacting the AI.",
-      });
+      const errorMessage =
+        error instanceof Error ? error.message : "An unknown error occurred.";
+
+      if (errorMessage.includes("Rate limit exceeded")) {
+        toast.error("Too many requests.", {
+          description: errorMessage,
+        });
+      } else {
+        toast.error("Failed to generate outfit ideas.", {
+          description: errorMessage,
+        });
+      }
     } finally {
       setIsGeneratingOutfit(false);
     }

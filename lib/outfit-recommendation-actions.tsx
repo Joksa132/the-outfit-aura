@@ -5,6 +5,7 @@ import { generateObject } from "ai";
 import { ProductVariantsDetails } from "@/lib/types";
 import { z } from "zod";
 import { google } from "./llm-client";
+import { auth } from "@/auth";
 
 const outfitRecommendationSchema = z.object({
   recommendedProducts: z
@@ -17,10 +18,20 @@ const outfitRecommendationSchema = z.object({
     .max(5),
 });
 
+const RATE_LIMIT_COUNT = 5;
+const RATE_LIMIT_DURATION_HOURS = 1;
+
 export async function getOutfitRecommendations(
   product: ProductVariantsDetails
 ) {
   const supabase = createSupabaseClient();
+  const session = await auth();
+
+  if (!session?.user?.id) {
+    throw new Error(
+      "Authentication required to generate outfit recommendations."
+    );
+  }
 
   if (!product) {
     return [];
@@ -28,6 +39,46 @@ export async function getOutfitRecommendations(
 
   const currentProduct = product.products;
   try {
+    const now = new Date();
+    const oneHourAgo = new Date(
+      now.getTime() - RATE_LIMIT_DURATION_HOURS * 60 * 60 * 1000
+    );
+
+    const { data: rateLimit, error } = await supabase
+      .from("rate_limits")
+      .select("request_count, last_request_at")
+      .eq("user_id", session.user.id)
+      .single();
+
+    if (error && error.code !== "PGRST116") {
+      throw new Error("An unexpected error occurred with rate limiting.");
+    }
+
+    let newCount = 1;
+    if (rateLimit && new Date(rateLimit.last_request_at) > oneHourAgo) {
+      newCount = rateLimit.request_count + 1;
+    }
+
+    if (newCount > RATE_LIMIT_COUNT) {
+      throw new Error(
+        `Rate limit exceeded: Please try again in ${RATE_LIMIT_DURATION_HOURS} hour(s).`
+      );
+    }
+
+    const { error: upsertError } = await supabase.from("rate_limits").upsert(
+      {
+        user_id: session.user.id,
+        request_count: newCount,
+        last_request_at: now.toISOString(),
+      },
+      { onConflict: "user_id" }
+    );
+
+    if (upsertError) {
+      console.log("UPSERT ERROR: ", upsertError);
+      throw new Error("An unexpected error occurred.");
+    }
+
     const { data: potentialVariants, error: potentialVariantsError } =
       await supabase
         .from("product_variants")
@@ -69,7 +120,8 @@ export async function getOutfitRecommendations(
 
       Here is a list of other available products and their colors in the store. 
       Your task is to recommend 3 to 5 products from this list that would create a stylish and cohesive outfit with the current product.
-
+      A good outfit typically includes a top, bottom, and outerwear. While it's best to recommend items from different categories (e.g., a shirt with trousers), you may recommend items from the same category if they serve a different purpose (e.g., a jacket to go with a t-shirt).
+      
       Available Products:
       ---
       ${productPoolString}
@@ -150,7 +202,12 @@ export async function getOutfitRecommendations(
 
     return transformedProducts;
   } catch (error) {
-    console.log(error);
-    return [];
+    if (
+      error instanceof Error &&
+      error.message.includes("Rate limit exceeded")
+    ) {
+      throw error;
+    }
+    throw new Error("An unexpected error occurred.");
   }
 }
