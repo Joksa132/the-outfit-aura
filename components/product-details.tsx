@@ -2,9 +2,9 @@
 
 import { ProductVariantsDetails } from "@/lib/types";
 import Image from "next/image";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Button } from "./ui/button";
-import { Heart, ShoppingCart, Star } from "lucide-react";
+import { Heart, ShoppingCart, Sparkles, Star } from "lucide-react";
 import { Separator } from "./ui/separator";
 import { Label } from "./ui/label";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
@@ -19,6 +19,8 @@ import { useSession } from "next-auth/react";
 import { toast } from "sonner";
 import { useWishlist } from "./providers/wishlist-context";
 import { useCart } from "./providers/cart-context";
+import { getOutfitRecommendations } from "@/lib/outfit-recommendation-actions";
+import { ProductCard } from "./product-card";
 
 export function ProductDetails({
   product,
@@ -30,6 +32,13 @@ export function ProductDetails({
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [quantity, setQuantity] = useState<number>(1);
   const { data: session } = useSession();
+
+  const [outfitRecommendations, setOutfitRecommendations] = useState<
+    ProductVariantsDetails[]
+  >([]);
+  const [isGeneratingOutfit, setIsGeneratingOutfit] = useState<boolean>(false);
+  const [showOutfitSection, setShowOutfitSection] = useState<boolean>(false);
+
   const {
     isProductWishlisted,
     getWishlistItemId,
@@ -68,6 +77,31 @@ export function ProductDetails({
       await addWishlistItem(product.id);
     }
   };
+
+  const handleGetOutfitRecommendations = useCallback(async () => {
+    setIsGeneratingOutfit(true);
+    setShowOutfitSection(true);
+    setOutfitRecommendations([]);
+
+    try {
+      const recommended = await getOutfitRecommendations(product);
+      if (recommended && recommended.length > 0) {
+        setOutfitRecommendations(recommended);
+        toast.success("Outfit ideas generated!");
+      } else {
+        toast.info("Could not generate outfit ideas for this product.", {
+          description: "Try again later or with a different product.",
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("Failed to generate outfit ideas.", {
+        description: "An error occurred while contacting the AI.",
+      });
+    } finally {
+      setIsGeneratingOutfit(false);
+    }
+  }, [product]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -184,9 +218,53 @@ export function ProductDetails({
               <Heart className="w-4 h-4 mr-2" />
               {isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
             </Button>
+            <Button
+              variant="outline"
+              className="w-full bg-transparent"
+              size="lg"
+              onClick={handleGetOutfitRecommendations}
+              disabled={isGeneratingOutfit}
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              {isGeneratingOutfit
+                ? "Generating Outfit Ideas..."
+                : "Get AI Outfit Ideas"}
+            </Button>
           </div>
         </div>
       </div>
+
+      <Separator className="mt-6" />
+
+      {showOutfitSection && (
+        <div className="mt-6">
+          <h2 className="flex items-center text-2xl font-bold">
+            <Sparkles className="w-5 h-5 mr-2" />
+            AI Outfit Suggestions
+          </h2>
+          <p className="text-muted-foreground text-lg mt-2 mb-4">
+            Our advanced AI stylist analyzed your{" "}
+            {product.products.name.toLowerCase()} and curated these perfect
+            matches based on current fashion trends and style compatibility.
+          </p>
+          {isGeneratingOutfit ? (
+            <div className="text-center py-10 text-muted-foreground">
+              <Sparkles className="w-8 h-8 animate-pulse mx-auto mb-4" />
+              Thinking of the perfect outfit...
+            </div>
+          ) : outfitRecommendations.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+              {outfitRecommendations.map((recProduct) => (
+                <ProductCard product={recProduct} key={recProduct.id} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-10 text-muted-foreground">
+              No outfit ideas found. Try again!
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
