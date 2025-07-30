@@ -18,7 +18,7 @@ const outfitRecommendationSchema = z.object({
     .max(5),
 });
 
-const RATE_LIMIT_COUNT = 5;
+const RATE_LIMIT_COUNT = 15;
 const RATE_LIMIT_DURATION_HOURS = 1;
 
 export async function getOutfitRecommendations(
@@ -121,7 +121,7 @@ export async function getOutfitRecommendations(
       Here is a list of other available products and their colors in the store. 
       Your task is to recommend 3 to 5 products from this list that would create a stylish and cohesive outfit with the current product.
       A good outfit typically includes a top, bottom, and outerwear. While it's best to recommend items from different categories (e.g., a shirt with trousers), you may recommend items from the same category if they serve a different purpose (e.g., a jacket to go with a t-shirt).
-      
+
       Available Products:
       ---
       ${productPoolString}
