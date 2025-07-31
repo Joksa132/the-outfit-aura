@@ -2,6 +2,7 @@ import { ProductDisplayFilters } from "@/components/product-display-filters";
 import { createSupabaseClient } from "@/lib/supabase-client";
 import { ProductVariantsDetails } from "@/lib/types";
 import { Search } from "lucide-react";
+import { Metadata } from "next";
 import { cache } from "react";
 
 const getSearchResults = cache(async (query: string) => {
@@ -97,6 +98,34 @@ export type SearchPageSearchParams = Promise<{
 type SearchPageProps = {
   searchParams: SearchPageSearchParams;
 };
+
+export async function generateMetadata({
+  searchParams,
+}: SearchPageProps): Promise<Metadata> {
+  const resolvedSearchParams = await searchParams;
+  const query = resolvedSearchParams?.query || "";
+
+  let title: string;
+  let description: string;
+  let keywords: string;
+
+  if (query) {
+    title = `Search Results for "${query}" | The Outfit Aura`;
+    description = `Discover products matching "${query}" on The Outfit Aura.`;
+    keywords = `${query}, ${query} products, search results, online shopping`;
+  } else {
+    title = "Search Products | The Outfit Aura";
+    description =
+      "Use our powerful search to find exactly what you're looking for. Explore our wide range of products.";
+    keywords = "search, products, find items, online store";
+  }
+
+  return {
+    title: title,
+    description: description,
+    keywords: keywords,
+  };
+}
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const resolvedSearchParams = await searchParams;

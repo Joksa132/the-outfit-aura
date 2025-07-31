@@ -3,7 +3,36 @@ import { Button } from "@/components/ui/button";
 import { WishlistProductCard } from "@/components/wishlist-product-card";
 import { getWishlistItems } from "@/lib/wishlist-actions";
 import { Heart } from "lucide-react";
+import { Metadata } from "next";
 import Link from "next/link";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const session = await auth();
+  const wishlistItems = await getWishlistItems();
+
+  let title = "Your Wishlist | The Outfit Aura";
+  let description =
+    "Browse your saved favorite products on your personal wishlist. Items you love, all in one place.";
+  const keywords = "wishlist, favorites, saved items, online store";
+
+  if (!session) {
+    title = "Login to View Wishlist | The Outfit Aura";
+    description =
+      "Please log in to view or manage your personal product wishlist.";
+  } else if (wishlistItems.length === 0) {
+    title = "Your Wishlist is Empty | The Outfit Aura";
+    description =
+      "Your wishlist is empty. Start exploring our products and add your favorites!";
+  } else {
+    description = `You have ${wishlistItems.length} items on your wishlist. Discover your favorites and save them for later.`;
+  }
+
+  return {
+    title: title,
+    description: description,
+    keywords: keywords,
+  };
+}
 
 export default async function WishlistPage() {
   const wishlistItems = await getWishlistItems();

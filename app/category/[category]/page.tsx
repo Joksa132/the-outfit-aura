@@ -1,6 +1,7 @@
 import { ProductDisplayFilters } from "@/components/product-display-filters";
 import { createSupabaseClient } from "@/lib/supabase-client";
 import { ProductVariantsDetails } from "@/lib/types";
+import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 
@@ -102,6 +103,49 @@ const getCategoryProducts = cache(async (categoryUrl: string) => {
     initialMaxPrice,
   };
 });
+
+const getCategoryData = cache(async (categoryUrl: string) => {
+  const supabaseClient = createSupabaseClient();
+  const { data: categoryData, error: categoryError } = await supabaseClient
+    .from("categories")
+    .select("id, name, url, description")
+    .eq("url", categoryUrl)
+    .single();
+
+  if (categoryError || !categoryData) {
+    return null;
+  }
+  return categoryData;
+});
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ category: string }>;
+}): Promise<Metadata> {
+  const { category: categoryUrl } = await params;
+
+  const categoryData = await getCategoryData(categoryUrl);
+
+  if (!categoryData) {
+    return {
+      title: "Category Not Found | The Outfit Aura",
+      description: "The category you are looking for does not exist.",
+    };
+  }
+
+  const defaultDescription = `Browse our collection of ${categoryData.name.toLowerCase()}. Discover the latest styles and trends.`;
+
+  const defaultKeywords = `${
+    categoryData.name
+  }, ${categoryData.name.toLowerCase()} fashion, ${categoryData.name.toLowerCase()} clothes, online shopping`;
+
+  return {
+    title: `${categoryData.name} | The Outfit Aura`,
+    description: categoryData.description || defaultDescription,
+    keywords: defaultKeywords,
+  };
+}
 
 export default async function CategoryPage({
   params,

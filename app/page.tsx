@@ -2,7 +2,21 @@ import { HeroCarousel } from "@/components/hero-carousel";
 import { ProductCard } from "@/components/product-card";
 import { createSupabaseClient } from "@/lib/supabase-client";
 import { ProductVariantsDetails } from "@/lib/types";
+import { Metadata } from "next";
 import { cache } from "react";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const title = "The Outfit Aura | High-Quality Fashion for Everyone";
+  const description = "Shop the latest trends in clothing at The Outfit Aura.";
+  const keywords =
+    "The Outfit Aura, online fashion, clothing store, men's fashion, rends, shop online, e-commerce, ecommerce";
+
+  return {
+    title: title,
+    description: description,
+    keywords: keywords,
+  };
+}
 
 const getFeaturedProducts = cache(async () => {
   const supabaseClient = createSupabaseClient();

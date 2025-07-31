@@ -9,6 +9,21 @@ import {
 import { Github, Mail } from "lucide-react";
 import { redirect } from "next/navigation";
 import { signIn, auth } from "@/auth";
+import { Metadata } from "next";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const title = "Login or Create Account | The Outfit Aura";
+  const description =
+    "Log in to your existing account or create a new one to start shopping and manage your orders at The Outfit Aura.";
+  const keywords =
+    "login, sign in, create account, register, new account, e-commerce, the outfit aura, online shop";
+
+  return {
+    title: title,
+    description: description,
+    keywords: keywords,
+  };
+}
 
 export default async function LoginPage() {
   const session = await auth();

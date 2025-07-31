@@ -2,6 +2,7 @@ import { ProductDetails } from "@/components/product-details";
 import { createSupabaseClient } from "@/lib/supabase-client";
 import { ProductVariantsDetails } from "@/lib/types";
 import { PostgrestSingleResponse } from "@supabase/supabase-js";
+import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 
@@ -83,6 +84,33 @@ type ProductPageProps = {
   params: ProductPageParams;
   searchParams?: ProductPageSearchParams;
 };
+
+export async function generateMetadata({
+  params,
+  searchParams,
+}: ProductPageProps): Promise<Metadata> {
+  const { url_slug } = await params;
+  const { color } = (await searchParams) || {};
+
+  const productVariant = await getProductDetails(url_slug, color);
+
+  if (!productVariant) {
+    return {
+      title: "Product Not Found | The Outfit Aura",
+      description: "The product you are looking for does not exist.",
+    };
+  }
+
+  const mainProduct = productVariant.products;
+
+  return {
+    title: `${mainProduct.name}${
+      productVariant.color ? ` - ${productVariant.color}` : ""
+    } | The Outfit Aura`,
+    description: mainProduct.description!.substring(0, 160) + "...",
+    keywords: `${mainProduct.name}, ${productVariant.color || ""}`,
+  };
+}
 
 export default async function ProductPage({
   params,

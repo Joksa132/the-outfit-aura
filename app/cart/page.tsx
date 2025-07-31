@@ -4,7 +4,36 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getCartItems } from "@/lib/cart-actions";
 import { ShoppingBag } from "lucide-react";
+import { Metadata } from "next";
 import Link from "next/link";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const session = await auth();
+  const cartItems = await getCartItems();
+
+  let title = "Your Shopping Cart | The Outfit Aura";
+  let description =
+    "Review the items in your shopping cart before proceeding to checkout.";
+  const keywords = "shopping cart, cart, checkout, online store";
+
+  if (!session) {
+    title = "Login to View Cart | The Outfit Aura";
+    description =
+      "Please log in to view your shopping cart and continue shopping.";
+  } else if (cartItems.length === 0) {
+    title = "Your Cart is Empty | The Outfit Aura";
+    description =
+      "Your shopping cart is currently empty. Start browsing our products to find something you love!";
+  } else {
+    description = `You have ${cartItems.length} items in your cart. Review your selection and proceed to checkout.`;
+  }
+
+  return {
+    title: title,
+    description: description,
+    keywords: keywords,
+  };
+}
 
 export default async function CartPage() {
   const cartItems = await getCartItems();
