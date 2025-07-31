@@ -4,34 +4,38 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Button } from "./ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import Link from "next/link";
 
 const slides = [
   {
     id: 1,
-    image: "",
-    title: "Slide 1 title",
-    subtitle: "Slide 1 subtitle",
-    description: "Slide 1 description",
-    buttonText: "Slide 1 button",
-    buttonLink: "/category/slide1",
+    image: "/slider-img1.jpg",
+    title: "Discover Our New Denim Collection",
+    subtitle: "Effortless Style",
+    description:
+      "From classic fits to modern cuts, find your perfect pair of jeans designed for comfort and durability.",
+    buttonText: "Shop Jeans",
+    buttonLink: "/category/jeans",
   },
   {
     id: 2,
-    image: "",
-    title: "Slide 2 title",
-    subtitle: "Slide 2 subtitle",
-    description: "Slide 2 description",
-    buttonText: "Slide 2 button",
-    buttonLink: "/category/slide2",
+    image: "/slider-img2.jpg",
+    title: "The Modern Polo: Redefined",
+    subtitle: "Timeless Comfort",
+    description:
+      "Experience the perfect blend of casual comfort and refined style with our latest polo designs.",
+    buttonText: "Explore Polos",
+    buttonLink: "/category/polos",
   },
   {
     id: 3,
-    image: "",
-    title: "Slide 3 title",
-    subtitle: "Slide 3 subtitle",
-    description: "Slide 3 description",
-    buttonText: "Slide 3 button",
-    buttonLink: "/category/slide3",
+    image: "/slider-img3.jpg",
+    title: "Master Your Wardrobe: Essential Shirts",
+    subtitle: "Sharp Looks",
+    description:
+      "Find versatile shirts for every occasion, crafted from premium fabrics for a flawless fit.",
+    buttonText: "Find Your Shirt",
+    buttonLink: "/category/shirts",
   },
 ];
 
@@ -40,7 +44,7 @@ export function HeroCarousel() {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) & slides.length);
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
     }, 5000);
 
     return () => clearInterval(timer);
@@ -55,13 +59,13 @@ export function HeroCarousel() {
   };
 
   return (
-    <div className="h-[70vh]">
+    <div className="h-[70vh] relative">
       <div className="h-full relative">
         {slides.map((slide, index) => (
           <div
             key={slide.id}
             className={`absolute inset-0 transition-opacity duration-1000 ${
-              index === currentSlide ? "opacity-100" : "opacity-0"
+              index === currentSlide ? "opacity-100 z-10" : "opacity-0 -z-10"
             }`}
           >
             <Image
@@ -71,6 +75,7 @@ export function HeroCarousel() {
               className="object-cover"
               priority={index === 0}
             />
+
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="text-center text-white space-y-6 px-4 max-w-4xl">
                 <p className="text-lg md:text-xl font-medium uppercase">
@@ -82,20 +87,15 @@ export function HeroCarousel() {
                 <p className="text-lg md:text-xl max-w-2xl mx-auto">
                   {slide.description}
                 </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Button
-                    size="lg"
-                    className="text-lg px-8 py-3 bg-white text-black hover:bg-gray-100"
-                  >
-                    {slide.buttonText}
-                  </Button>
-                  <Button
-                    size="lg"
-                    variant="outline"
-                    className="text-lg px-8 py-3 border-white text-white hover:bg-white hover:text-black bg-transparent"
-                  >
-                    View All
-                  </Button>
+                <div className="flex gap-4 justify-center">
+                  <Link href={slide.buttonLink} passHref>
+                    <Button
+                      size="lg"
+                      className="text-lg px-8 py-3 bg-white text-black hover:bg-gray-100"
+                    >
+                      {slide.buttonText}
+                    </Button>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -105,13 +105,13 @@ export function HeroCarousel() {
 
       <Button
         onClick={prevSlide}
-        className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover-bg-white/30 text-white p-2 rounded-full transition-colors"
+        className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/60 hover-bg-white/30 text-white p-2 rounded-full transition-colors z-20"
       >
         <ChevronLeft className="w-6 h-6" />
       </Button>
       <Button
         onClick={nextSlide}
-        className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 hover-bg-white/30 text-white p-2 rounded-full transition-colors"
+        className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/60 hover-bg-white/30 text-white p-2 rounded-full transition-colors z-20"
       >
         <ChevronRight className="w-6 h-6" />
       </Button>
