@@ -1,36 +1,29 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# The Outfit Aura
 
-## Getting Started
+## Description
 
-First, run the development server:
+Full-stack e-commerce web application built with Next.js designed to look modern and simple.
+This app provides essential functionalities of an online store, enhanced with artificial intelligence for personalized product recommendations.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Dynamic Product Pages:** Detailed pages for individual products, showcasing images, descriptions, pricing, and sizes.
+- **AI Product Recommendations:** Individual product pages feature AI-powered suggestions for other products that fit the user's style or complement their current selection.
+- **Dynamic Category Pages:** Browse products organized by categories, complete with filtering capabilities for colors, sizes, and price ranges.
+- **Shopping Cart:** Users can add, update, and remove items from their shopping cart.
+- **Personal Wishlist:** Logged-in users can save their favorite products to a personal wishlist for later viewing.
+- **Product Search:** A search functionality allows users to find products by name, with filtered results.
+- **User Authentication:** Secure login and account creation via Google and GitHub, powered by NextAuth.js.
+- **Streamlined Checkout:** A checkout process for logged-in users to finalize their purchases.
+- **SEO Optimized:** Dynamically generated `title`, `description`, and `keywords` for product pages, category pages, cart, wishlist, search results, and authentication pages, enhancing search engine visibility.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Technologies used
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **[Next.js 15 (App Router)](https://nextjs.org/)**
+- **[React 19](https://react.dev/)**
+- **[TypeScript](https://www.typescriptlang.org/)**
+- **[Supabase](https://supabase.com/)**
+- **[Auth.js](https://authjs.dev/)**
+- **[Tailwind CSS](https://tailwindcss.com/)**
+- **[Shadcn/ui](https://ui.shadcn.com/)**
+- **[Vercel AI SDK](https://ai-sdk.dev/)**
