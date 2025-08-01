@@ -6,6 +6,20 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 
+const getAllProductVariants = cache(async (productId: string) => {
+  const supabaseClient = createSupabaseClient();
+  const { data, error } = await supabaseClient
+    .from("product_variants")
+    .select("id, color")
+    .eq("product_id", productId);
+
+  if (error) {
+    return [];
+  }
+
+  return data;
+});
+
 const getProductDetails = cache(async (urlSlug: string, color?: string) => {
   const supabaseClient = createSupabaseClient();
 
@@ -128,5 +142,7 @@ export default async function ProductPage({
     notFound();
   }
 
-  return <ProductDetails product={productVariant} />;
+  const allVariants = await getAllProductVariants(productVariant.product_id);
+
+  return <ProductDetails product={productVariant} allVariants={allVariants} />;
 }

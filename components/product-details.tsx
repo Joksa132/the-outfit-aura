@@ -4,7 +4,7 @@ import { ProductVariantsDetails } from "@/lib/types";
 import Image from "next/image";
 import { useCallback, useState } from "react";
 import { Button } from "./ui/button";
-import { Heart, ShoppingCart, Sparkles, Star } from "lucide-react";
+import { Heart, ShoppingCart, Sparkles } from "lucide-react";
 import { Separator } from "./ui/separator";
 import { Label } from "./ui/label";
 import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
@@ -21,17 +21,30 @@ import { useWishlist } from "./providers/wishlist-context";
 import { useCart } from "./providers/cart-context";
 import { getOutfitRecommendations } from "@/lib/outfit-recommendation-actions";
 import { ProductCard } from "./product-card";
+import { usePathname, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { colors } from "@/lib/colors";
+
+type AllVariants = {
+  id: string;
+  color: string;
+};
 
 export function ProductDetails({
   product,
+  allVariants,
 }: {
   product: ProductVariantsDetails;
+  allVariants: AllVariants[];
 }) {
   const mainProduct = product.products;
   const [selectedImage, setSelectedImage] = useState<number>(0);
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [quantity, setQuantity] = useState<number>(1);
   const { data: session } = useSession();
+
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   const [outfitRecommendations, setOutfitRecommendations] = useState<
     ProductVariantsDetails[]
@@ -152,11 +165,6 @@ export function ProductDetails({
 
         <div className="flex flex-col gap-4">
           <h1 className="text-3xl font-bold">{mainProduct.name}</h1>
-          <div className="flex items-center gap-1">
-            {[...Array(5)].map((_, i) => (
-              <Star key={i} className={`w-4 h-4 cursor-pointer`} />
-            ))}
-          </div>
           <div className="flex items-center gap-3 mb-4">
             <span className="text-3xl font-bold">
               ${mainProduct.discounted_price ?? mainProduct.price}
@@ -174,6 +182,35 @@ export function ProductDetails({
             <p className="text-muted-foreground leading-relaxed">
               {mainProduct.description}
             </p>
+          </div>
+
+          <div className="space-y-3">
+            <Label className="text-base font-semibold">Color</Label>
+            <div className="flex flex-wrap gap-2">
+              {allVariants.map((variant) => {
+                const isSelected = product.color === variant.color;
+                const newSearchParams = new URLSearchParams(
+                  searchParams.toString()
+                );
+                newSearchParams.set("color", variant.color);
+
+                const cssColor = colors[variant.color] || variant.color;
+
+                return (
+                  <Link
+                    key={variant.color}
+                    href={`${pathname}?${newSearchParams.toString()}`}
+                    scroll={false}
+                    className={`relative w-10 h-10 rounded-full border-2 cursor-pointer transition-transform duration-200 ease-in-out hover:scale-110 ${
+                      isSelected ? "ring-2 ring-offset-2 ring-primary" : ""
+                    }`}
+                    style={{ backgroundColor: cssColor }}
+                  >
+                    <span className="sr-only">Select {variant.color}</span>
+                  </Link>
+                );
+              })}
+            </div>
           </div>
 
           <div className="space-y-3">
