@@ -165,7 +165,7 @@ export function ProductDetails({
 
         <div className="flex flex-col gap-4">
           <h1 className="text-3xl font-bold">{mainProduct.name}</h1>
-          <div className="flex items-center gap-3 mb-4">
+          <div className="flex items-center gap-3">
             <span className="text-3xl font-bold">
               ${mainProduct.discounted_price ?? mainProduct.price}
             </span>
@@ -175,6 +175,10 @@ export function ProductDetails({
               </span>
             )}
           </div>
+
+          <p className="text-lg text-muted-foreground mb-2">
+            Color: {product.color}
+          </p>
 
           <Separator />
 
