@@ -6,6 +6,7 @@ import { SessionProvider } from "@/components/providers/session-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { WishlistProvider } from "@/components/providers/wishlist-context";
 import { CartProvider } from "@/components/providers/cart-context";
+import { Analytics } from "@vercel/analytics/react";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const playfair = Playfair_Display({
@@ -33,6 +34,7 @@ export default function RootLayout({
             <WishlistProvider>
               <Navbar />
               <main>{children}</main>
+              <Analytics />
               <Toaster position="top-center" richColors />
             </WishlistProvider>
           </CartProvider>
