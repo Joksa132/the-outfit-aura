@@ -272,18 +272,31 @@ export function ProductDetails({
               <Heart className="w-4 h-4 mr-2" />
               {isWishlisted ? "Remove from Wishlist" : "Add to Wishlist"}
             </Button>
-            <Button
-              variant="outline"
-              className="w-full bg-transparent"
-              size="lg"
-              onClick={handleGetOutfitRecommendations}
-              disabled={isGeneratingOutfit}
-            >
-              <Sparkles className="w-4 h-4 mr-2" />
-              {isGeneratingOutfit
-                ? "Generating Outfit Ideas..."
-                : "Get AI Outfit Ideas"}
-            </Button>
+            {session?.user ? (
+              <Button
+                variant="outline"
+                className="w-full bg-transparent"
+                size="lg"
+                onClick={handleGetOutfitRecommendations}
+                disabled={isGeneratingOutfit}
+              >
+                <Sparkles className="w-4 h-4 mr-2" />
+                {isGeneratingOutfit
+                  ? "Generating Outfit Ideas..."
+                  : "Get AI Outfit Ideas"}
+              </Button>
+            ) : (
+              <Link href={"/login"}>
+                <Button
+                  variant="outline"
+                  className="w-full bg-transparent"
+                  size="lg"
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Login to Get AI Outfit Ideas
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
       </div>
