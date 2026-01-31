@@ -3,6 +3,7 @@
 import { createSupabaseClient } from "@/lib/supabase-client";
 import { auth } from "@/auth";
 import { revalidatePath } from "next/cache";
+import { cache } from "react";
 import { CartItem } from "./types";
 
 export async function addOrUpdateCartItem(
@@ -38,7 +39,7 @@ export async function addOrUpdateCartItem(
       await supabase
         .from("cart")
         .update({
-          quantity: existingItem.quantity,
+          quantity: existingItem.quantity + quantity,
           updated_at: new Date().toISOString(),
         })
         .eq("id", existingItem.id)
@@ -47,10 +48,10 @@ export async function addOrUpdateCartItem(
     }
 
     revalidatePath("/cart");
-    return { success: true };
+    return { success: true, shouldRefetch: true };
   } catch (error) {
     console.log(error);
-    return { success: false };
+    return { success: false, shouldRefetch: false };
   }
 }
 
@@ -75,7 +76,7 @@ export async function removeCartItem(cartItemId: string) {
   }
 }
 
-export async function getCartItems() {
+export const getCartItems = cache(async () => {
   const supabase = createSupabaseClient();
   const session = await auth();
 
@@ -98,19 +99,9 @@ export async function getCartItems() {
           products!inner (
             id,
             name,
-            description,
             price,
             discounted_price,
-            url_slug,
-            category_id,
-            available_sizes,
-            features,
-            is_active,
-            is_featured,
-            average_rating,
-            review_count,
-            gender,
-            tags
+            url_slug
           )
         )
       `
@@ -126,7 +117,7 @@ export async function getCartItems() {
     console.log(error);
     return [];
   }
-}
+});
 
 export async function updateCartItemQuantity(
   cartItemId: string,

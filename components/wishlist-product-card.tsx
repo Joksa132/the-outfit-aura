@@ -1,5 +1,6 @@
 "use client";
 
+import { memo, useCallback } from "react";
 import Link from "next/link";
 import { Card, CardContent } from "./ui/card";
 import Image from "next/image";
@@ -8,17 +9,17 @@ import { Heart } from "lucide-react";
 import { WishlistItem } from "@/lib/types";
 import { useWishlist } from "./providers/wishlist-context";
 
-export function WishlistProductCard({ product }: { product: WishlistItem }) {
+export const WishlistProductCard = memo(function WishlistProductCard({ product }: { product: WishlistItem }) {
   const defaultImageUrl = "/placeholder-image.svg";
   const imageUrl = product.product_variants.image_urls?.[0] || defaultImageUrl;
   const mainProduct = product.product_variants.products;
   const { removeItem, isAddingOrRemoving } = useWishlist();
 
-  const handleRemoveItem = async (e: React.MouseEvent) => {
+  const handleRemoveItem = useCallback(async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     await removeItem(product.id);
-  };
+  }, [removeItem, product.id]);
 
   return (
     <Link
@@ -34,6 +35,7 @@ export function WishlistProductCard({ product }: { product: WishlistItem }) {
               alt={mainProduct.name}
               width={300}
               height={400}
+              loading="lazy"
               className="w-full h-80 object-cover rounded-t-lg group-hover:scale-105 transition-transform cursor-pointer"
             />
             <Button
@@ -70,4 +72,4 @@ export function WishlistProductCard({ product }: { product: WishlistItem }) {
       </Card>
     </Link>
   );
-}
+});

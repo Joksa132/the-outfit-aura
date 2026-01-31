@@ -2,10 +2,11 @@
 
 import { auth } from "@/auth";
 import { createSupabaseClient } from "./supabase-client";
+import { cache } from "react";
 import { WishlistItem } from "./types";
 import { revalidatePath } from "next/cache";
 
-export async function getWishlistItems() {
+export const getWishlistItems = cache(async () => {
   const supabase = createSupabaseClient();
   const session = await auth();
 
@@ -26,19 +27,9 @@ export async function getWishlistItems() {
           products!inner (
             id,
             name,
-            description,
             price,
             discounted_price,
-            url_slug,
-            category_id,
-            available_sizes,
-            features,
-            is_active,
-            is_featured,
-            average_rating,
-            review_count,
-            gender,
-            tags
+            url_slug
           )
         )
       `
@@ -54,7 +45,7 @@ export async function getWishlistItems() {
     console.log(error);
     return [];
   }
-}
+});
 
 export async function getWishlistItem(itemId: string) {
   const supabase = createSupabaseClient();

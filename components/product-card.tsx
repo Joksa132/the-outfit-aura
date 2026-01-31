@@ -1,5 +1,6 @@
 "use client";
 
+import { memo, useCallback } from "react";
 import { ProductVariantsDetails } from "@/lib/types";
 import Link from "next/link";
 import { Card, CardContent } from "./ui/card";
@@ -9,7 +10,7 @@ import { Heart } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useWishlist } from "./providers/wishlist-context";
 
-export function ProductCard({ product }: { product: ProductVariantsDetails }) {
+export const ProductCard = memo(function ProductCard({ product }: { product: ProductVariantsDetails }) {
   const mainProduct = product.products;
   const defaultImageUrl = "/placeholder-image.svg";
   const imageUrl = product.image_urls?.[0] || defaultImageUrl;
@@ -25,7 +26,7 @@ export function ProductCard({ product }: { product: ProductVariantsDetails }) {
   const isWishlisted = isProductWishlisted(product.id);
   const wishlistItemId = getWishlistItemId(product.id);
 
-  const handleToggleWishlist = async (e: React.MouseEvent) => {
+  const handleToggleWishlist = useCallback(async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -34,7 +35,7 @@ export function ProductCard({ product }: { product: ProductVariantsDetails }) {
     } else {
       await addItem(product.id);
     }
-  };
+  }, [isWishlisted, wishlistItemId, removeItem, addItem, product.id]);
 
   return (
     <Link
@@ -50,6 +51,7 @@ export function ProductCard({ product }: { product: ProductVariantsDetails }) {
               alt={`${mainProduct.name} - ${product.color}`}
               width={300}
               height={300}
+              loading="lazy"
               className="w-full h-80 object-cover rounded-t-lg group-hover:scale-105 transition-transform"
             />
             <Button
@@ -99,4 +101,4 @@ export function ProductCard({ product }: { product: ProductVariantsDetails }) {
       </Card>
     </Link>
   );
-}
+});

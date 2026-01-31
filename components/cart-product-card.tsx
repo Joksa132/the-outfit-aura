@@ -1,5 +1,6 @@
 "use client";
 
+import { memo, useCallback } from "react";
 import Image from "next/image";
 import { Card, CardContent } from "./ui/card";
 import { Button } from "./ui/button";
@@ -8,20 +9,20 @@ import { Input } from "./ui/input";
 import { CartItem } from "@/lib/types";
 import { useCart } from "./providers/cart-context";
 
-export function CartProductCard({ product }: { product: CartItem }) {
+export const CartProductCard = memo(function CartProductCard({ product }: { product: CartItem }) {
   const defaultImageUrl = "/placeholder-image.svg";
   const imageUrl = product.product_variants.image_urls?.[0] || defaultImageUrl;
   const mainProduct = product.product_variants.products;
 
   const { removeItem, updateItemQuantity, isUpdatingCart } = useCart();
 
-  const handleUpdateQuantity = async (newQuantity: number) => {
+  const handleUpdateQuantity = useCallback(async (newQuantity: number) => {
     await updateItemQuantity(product.id, newQuantity);
-  };
+  }, [updateItemQuantity, product.id]);
 
-  const handleRemoveItem = async () => {
+  const handleRemoveItem = useCallback(async () => {
     await removeItem(product.id);
-  };
+  }, [removeItem, product.id]);
 
   return (
     <Card
@@ -90,4 +91,4 @@ export function CartProductCard({ product }: { product: CartItem }) {
       </CardContent>
     </Card>
   );
-}
+});

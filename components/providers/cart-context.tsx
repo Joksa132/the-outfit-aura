@@ -7,6 +7,7 @@ import React, {
   useEffect,
   useCallback,
   useTransition,
+  useMemo,
 } from "react";
 import { useSession } from "next-auth/react";
 import { toast } from "sonner";
@@ -136,9 +137,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     []
   );
 
-  const totalPrice = cartItems.reduce(
-    (sum, item) => sum + item.product_variants.products.price * item.quantity,
-    0
+  const totalPrice = useMemo(
+    () =>
+      cartItems.reduce(
+        (sum, item) => sum + item.product_variants.products.price * item.quantity,
+        0
+      ),
+    [cartItems]
   );
 
   const value = {
